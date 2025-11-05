@@ -3,7 +3,6 @@
 **Financial clarity. Designed for solo careers.**
 
 ![Solofin](https://www.figma.com/make/9sopPE8LRO5QpObLoNBVN0/Main-Dashboard-Design?fullscreen=1)
-_Note: This is a temporary cover image. You can replace it with your project's logo or a screenshot._
 
 Solofin is a SaaS (Software as a Service) application being developed to solve the single biggest problem for freelancers, consultants, and one-person businesses: **"How much of this money is actually mine?"**
 
