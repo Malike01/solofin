@@ -29,3 +29,8 @@ dist-ssr
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Python Backend
+backend/venv/
+backend/__pycache__/
+backend/.env
