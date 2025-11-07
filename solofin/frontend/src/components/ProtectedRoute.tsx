@@ -7,9 +7,9 @@ type ProtectedRouteProps = {
 };
 
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const user = useAuth();
+  const userInfo = useAuth();
 
-  if (!user) {
+  if (!userInfo.user) {
     return <Navigate to="/login" replace />;
   }
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Button, Container, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 
@@ -9,7 +8,7 @@ const NotFoundPage = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: '100vh', // Ekranı kapla
+        minHeight: '100vh',
         backgroundColor: 'background.default',
         textAlign: 'center',
         padding: 4,
