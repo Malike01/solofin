@@ -163,13 +163,13 @@ export default function AuthPage() {
 
               {isLogin && (
                 <Grid container alignItems="center" justifyContent="space-between">
-                  <Grid item>
+                  <Grid>
                     <FormControlLabel
                       control={<Checkbox value="remember" color="primary" />}
                       label="Beni Hatırla"
                     />
                   </Grid>
-                  <Grid item>
+                  <Grid>
                     <Link href="#" variant="body2">
                       Şifremi Unuttum?
                     </Link>
@@ -192,7 +192,7 @@ export default function AuthPage() {
               </Button>
 
               <Grid container justifyContent="center">
-                <Grid item>
+                <Grid>
                   <Link href="#" variant="body2" onClick={toggleMode}>
                     {isLogin
                       ? "Hesabınız yok mu? Kayıt Olun"
