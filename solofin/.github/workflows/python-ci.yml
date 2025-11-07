@@ -1,0 +1,37 @@
+name: Python Lint & Type Check
+
+on:
+  push:
+    branches: ["main"]
+
+  pull_request:
+    branches: ["main"]
+
+  workflow_dispatch:
+
+# --- (Jobs) ---
+jobs:
+  lint-and-type-check:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.14"]
+
+    steps:
+      - name: Kodu Kopyala (Checkout)
+        uses: actions/checkout@v4
+
+      - name: Python'u Kur (${{ matrix.python-version }})
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Bağımlılıkları Yükle
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Statik Tip Kontrolü (MyPy)
+        run: |
+          mypy app/
