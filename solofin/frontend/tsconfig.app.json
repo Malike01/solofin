@@ -33,5 +33,5 @@
     },
     "baseUrl": "./"
   },
-  "include": ["frontend/src"]
+  "include": ["src"]
 }

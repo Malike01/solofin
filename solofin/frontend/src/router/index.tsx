@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react';
+import { Suspense, lazy } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import AuthPage from '../pages/AuthPage';
 import { ProtectedRoute } from '../components/ProtectedRoute';
@@ -14,7 +14,11 @@ const DashboardPage = lazy(() => import('../pages/DashboardPage'));
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <MainLayout />,
+    element: (
+      <ProtectedRoute>
+        <MainLayout />
+      </ProtectedRoute>
+    ),
     errorElement: <NotFoundPage />,
     children: [
       {
