@@ -5,7 +5,7 @@ from httpx_oauth.clients.google import GoogleOAuth2
 
 from app.core.config import settings
 from app.core import security
-from app.services import crud
+from solofin.backend.app.services import auth
 from app.db.database import get_db
 from app.db import schemas
 
@@ -57,10 +57,10 @@ async def google_auth_callback(
             detail=f"Google'dan kullanıcı bilgisi alınamadı: {e}"
         )
 
-    db_user = await crud.get_user_by_email(db, email=user_email)
+    db_user = await auth.get_user_by_email(db, email=user_email)
 
     if not db_user:
-        db_user = await crud.create_google_user(
+        db_user = await auth.create_google_user(
             db, email=user_email, full_name=user_full_name
         )
     elif db_user.is_google_user == False:

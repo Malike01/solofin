@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timezone
 
 from app.db import schemas
-from app.services import crud
+from solofin.backend.app.services import auth
 from app.core import security
 from app.db.database import get_db
 from app.core.limiter import ip_rate_limiter 
@@ -16,13 +16,13 @@ async def register_user(
     user: schemas.UserCreate, 
     db: AsyncSession = Depends(get_db)
 ):
-    db_user = await crud.get_user_by_email(db, email=user.email)
+    db_user = await auth.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Bu email adresi zaten kayıtlı."
         )
-    return await crud.create_user(db=db, user=user)
+    return await auth.create_user(db=db, user=user)
 
 
 @router.post("/login", response_model=schemas.Token)
@@ -35,7 +35,7 @@ async def login_for_access_token(
     email = form_data.username
     password = form_data.password
     
-    user = await crud.get_user_by_email(db, email=email)
+    user = await auth.get_user_by_email(db, email=email)
 
     if not user or user.is_google_user:
         raise HTTPException(
@@ -53,14 +53,14 @@ async def login_for_access_token(
 
     if not security.verify_password(password, user.hashed_password):
         # 'Attempt
-        await crud.update_login_attempts(db, user, success=False)
+        await auth.update_login_attempts(db, user, success=False)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Geçersiz email veya şifre.",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    await crud.update_login_attempts(db, user, success=True)
+    await auth.update_login_attempts(db, user, success=True)
 
     access_token = security.create_access_token(
         data={"sub": user.email}

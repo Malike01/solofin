@@ -6,7 +6,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 from app.db import schemas
-from app.services import crud
+from solofin.backend.app.services import auth
 from app.db.database import get_db
 from app.core.config import settings
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -51,7 +51,7 @@ async def get_current_user(
     except JWTError:
         raise credentials_exception
     
-    user = await crud.get_user_by_email(db, email=token_data.email)
+    user = await auth.get_user_by_email(db, email=token_data.email)
     if user is None:
         raise credentials_exception
     return user

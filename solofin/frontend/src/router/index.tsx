@@ -5,6 +5,7 @@ import { ProtectedRoute } from '../components/ProtectedRoute';
 import { MainLayout } from '../components/layout/MainLayout';
 import LazyLoader from '../components/LazyLoader';
 import NotFoundPage from '../components/NotFoundPage';
+import ErrorPage from '@pages/ErrorPage';
 
 
 // Protected
@@ -19,7 +20,7 @@ export const router = createBrowserRouter([
         <MainLayout />
       </ProtectedRoute>
     ),
-    errorElement: <NotFoundPage />,
+    errorElement: <ErrorPage code="Oops!" title="Beklenmedik Hata" message="Bir şeyler ters gitti." />,
     children: [
       {
         index: true,
@@ -53,4 +54,8 @@ export const router = createBrowserRouter([
     path: '*',
     element: <NotFoundPage />,
   },
+  {
+  path: '*',
+    element: <ErrorPage /> // Varsayılan olarak 404 modunda çalışır
+  }
 ]);
