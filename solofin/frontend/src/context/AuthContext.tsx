@@ -1,113 +1,109 @@
-import React, { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { authService } from '../services/authService';
+import { type LoginFormValues, type RegisterFormValues } from '../schemas/authSchema';
+import type { User } from '@/types';
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  token: string;
-}
-
-// Context type
 interface AuthContextType {
   user: User | null;
-  isLoading: boolean; 
-  error: string | null; 
-  login: (data: any) => Promise<void>; 
-  register: (data: any) => Promise<void>; 
-  googleLogin: () => Promise<void>; 
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  error: string | null;
+  login: (data: LoginFormValues) => Promise<void>;
+  register: (data: RegisterFormValues) => Promise<void>;
   logout: () => void;
+  googleLogin: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-interface AuthProviderProps {
-  children: React.ReactNode;
-}
-
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const login = async (data: any) => {
+  useEffect(() => {
+    const initAuth = async () => {
+      const token = localStorage.getItem('accessToken');
+      if (token) {
+        try {
+          const userData = await authService.getMe();
+          setUser(userData);
+        } catch (err) {
+          console.error("Oturum yenileme hatası:", err);
+          localStorage.removeItem('accessToken');
+          setUser(null);
+        }
+      }
+      setIsLoading(false);
+    };
+
+    initAuth();
+  }, []);
+
+  const login = async (data: LoginFormValues) => {
     setIsLoading(true);
     setError(null);
-    console.log('Context: Login', data);
+    try {
+      const response = await authService.login(data);
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    if (data.password.length < 6) {
-      setError('Password must be at least 6 characters.');
+      localStorage.setItem('accessToken', response.access_token);
+      
+      const userData = await authService.getMe();
+      setUser(userData);
+      
+    } catch (err: any) {
+      const message = err.response?.data?.detail || 'Giriş başarısız oldu.';
+      setError(message);
+      throw err;
+    } finally {
       setIsLoading(false);
-      throw new Error('Short password');
     }
-
-    const fakeUser: User = {
-      id: '1',
-      name: 'User Fakename',
-      email: data.email,
-      token: 'fake-jwt-token',
-    };
-    setUser(fakeUser);
-    setIsLoading(false);
-    console.log('Context: Successful login', fakeUser);
   };
 
-  const register = async (data: any) => {
+  const register = async (data: RegisterFormValues) => {
     setIsLoading(true);
     setError(null);
-    console.log('Context: Register', data);
-
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    if (!data.name) {
-      setError('Ad Soyad alanı zorunludur.');
+    try {
+      await authService.register(data);
+      await login({ email: data.email, password: data.password });
+      
+    } catch (err: any) {
+      const message = err.response?.data?.detail || 'Kayıt işlemi başarısız.';
+      setError(message);
+      throw err;
+    } finally {
       setIsLoading(false);
-      throw new Error('Required field');
     }
-
-    const fakeUser: User = {
-      id: '2',
-      name: data.name,
-      email: data.email,
-      token: 'fake-jwt-token-new',
-    };
-    setUser(fakeUser);
-    setIsLoading(false);
-    console.log('Context: Successful register', fakeUser);
-  };
-
-  const googleLogin = async () => {
-    setIsLoading(true);
-    setError(null);
-    console.log('Context: Login in Google...');
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsLoading(false);
   };
 
   const logout = () => {
-    console.log('Context: Logout');
+    localStorage.removeItem('accessToken');
     setUser(null);
+  };
+
+  const googleLogin = async () => {
+    const backendUrl = import.meta.env.VITE_API_URL || '';
+    window.location.href = `${backendUrl}/auth/google`;
   };
 
   const value = {
     user,
+    isAuthenticated: !!user, 
     isLoading,
     error,
     login,
     register,
-    googleLogin,
     logout,
+    googleLogin
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// useAuth hooks
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth, AuthProvider içinde kullanılmalıdır');
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
